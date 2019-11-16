@@ -38,7 +38,7 @@ void pool_enter(struct pool *pool, int level)
         if (level == MIDDLE){
             pool->waitMiddle += 1;
             while (pool->numHigh > 0 | pool->count == NLANES | (pool->turn == HIGH && pool->numMiddle > 0)){
-                if (pool->numHigh > 0 ) { pool->turn = MIDDLE; }
+                if (pool->numHigh > 0 && pool->waitMiddle == 1) { pool->turn = MIDDLE; }
                 rthread_cv_wait(&pool->qMiddle); 
             }
             pool->waitMiddle -= 1;
@@ -48,7 +48,7 @@ void pool_enter(struct pool *pool, int level)
         if (level == HIGH){
             pool->waitHigh += 1;
             while (pool->numMiddle > 0 | pool->count == NLANES | (pool->turn == MIDDLE && pool->numHigh > 0)){
-                if (pool->numMiddle > 0  ) { pool->turn = HIGH; }
+                if (pool->numMiddle > 0  && pool->waitHigh == 1) { pool->turn = HIGH; }
                 rthread_cv_wait(&pool->qHigh); 
             }
             pool->waitHigh -= 1;
